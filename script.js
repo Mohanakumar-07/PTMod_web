@@ -163,7 +163,7 @@ class AmbientBackground {
 
 class BotDataManager {
     constructor() {
-        this.apiEndpoint = '/api/bot-stats';
+        this.apiEndpoint = 'https://pt.gowshik.online/api/bot-stats';
         this.updateInterval = 5000; // Update every 5 seconds
         this.updateTimer = null;
     }
