@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PT Mod - Discord Bot</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Background Canvas -->
+    <canvas id="backgroundCanvas"></canvas>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1 class="hero-title">PT Mod</h1>
+            <p class="hero-tagline">Advanced moderation and management for your Discord server</p>
+            <div class="hero-buttons">
+                <a href="https://discord.com/oauth2/authorize?client_id=1328624294628032523&permissions=1127001967815730&scope=bot%20applications.commands&guild_select=true"
+                    class="btn btn-primary" target="_blank" rel="noopener noreferrer">Invite to Discord</a>
+                <a href="#" class="btn btn-secondary">Dashboard</a>
+            </div>
+        </section>
+
+        <!-- Bot Profile Panel -->
+        <section class="bot-profile">
+            <div class="profile-card glass-card">
+                <div class="profile-header">
+                    <img src="PTmod.jpg" alt="PT Mod Avatar" class="bot-avatar">
+                    <div class="profile-info">
+                        <h2 class="bot-name">PT Mod</h2>
+                        <p class="bot-id">ID: 1328624294628032523</p>
+                        <div class="status-indicator">
+                            <span class="status-dot" id="statusDot"></span>
+                            <span class="status-text" id="statusText">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Version</span>
+                        <span class="stat-value">2.1.0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Developer</span>
+                        <span class="stat-value">Mk</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Servers</span>
+                        <span class="stat-value" id="serverCount">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Users</span>
+                        <span class="stat-value" id="userCount">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Latency</span>
+                        <span class="stat-value" id="latency">-</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="about">
+            <h2 class="section-title">About</h2>
+            <div class="about-card glass-card">
+                <p class="about-text">
+                    PT Mod is a powerful Discord moderation bot designed to help server administrators
+                    maintain order and enhance their community experience. With advanced features,
+                    intuitive commands, and reliable performance, PT Mod is the perfect solution for
+                    servers of all sizes.
+                </p>
+            </div>
+        </section>
+
+        <!-- Dashboard Preview -->
+        <section class="dashboard-preview">
+            <h2 class="section-title">Features & Stats</h2>
+            <div class="stats-grid">
+                <div class="stat-card glass-card">
+                    <div class="stat-icon" id="iconServers">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="2" y="3" width="20" height="4" rx="1" stroke="currentColor" stroke-width="2" />
+                            <rect x="2" y="10" width="20" height="4" rx="1" stroke="currentColor" stroke-width="2" />
+                            <rect x="2" y="17" width="20" height="4" rx="1" stroke="currentColor" stroke-width="2" />
+                            <circle cx="5" cy="5" r="1" fill="currentColor" />
+                            <circle cx="5" cy="12" r="1" fill="currentColor" />
+                            <circle cx="5" cy="19" r="1" fill="currentColor" />
+                        </svg>
+                    </div>
+                    <h3 class="stat-title">Servers</h3>
+                    <p class="stat-number" id="statServers">-</p>
+                </div>
+                <div class="stat-card glass-card">
+                    <div class="stat-icon" id="iconLatency">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <h3 class="stat-title">Latency</h3>
+                    <p class="stat-number" id="statLatency">-</p>
+                </div>
+                <div class="stat-card glass-card">
+                    <div class="stat-icon" id="iconUptime">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                            <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <h3 class="stat-title">Uptime</h3>
+                    <p class="stat-number" id="statUptime">-</p>
+                </div>
+                <div class="stat-card glass-card">
+                    <div class="stat-icon" id="iconFeatures">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <h3 class="stat-title">Features</h3>
+                    <p class="stat-number">20+</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-links">
+                <a href="#" class="footer-link">Discord Support</a>
+                <a href="#" class="footer-link">GitHub</a>
+            </div>
+            <p class="footer-text">&copy; 2024 PT Mod. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
