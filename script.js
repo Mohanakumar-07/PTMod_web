@@ -1,7 +1,6 @@
 /**
  * PT Mod - Custom Ambient Background Animation
  * Animated particle network with connecting lines
- * Particles move slowly and bounce within screen bounds
  */
 
 class AmbientBackground {
@@ -9,11 +8,9 @@ class AmbientBackground {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         this.particles = [];
-        this.nodeCount = 80; // Number of particles
-        this.connectionDistance = 250; // Max distance for connections
-        this.neonViolet = '#8b5cf6';
-        this.neonVioletGlow = 'rgba(139, 92, 246, 0.6)';
-        
+        this.nodeCount = 80;
+        this.connectionDistance = 250;
+
         this.init();
         this.setupEventListeners();
         this.animate();
@@ -21,20 +18,18 @@ class AmbientBackground {
 
     init() {
         this.resize();
-        
-        // Create particles (points/nodes)
+
         for (let i = 0; i < this.nodeCount; i++) {
-            // Movement from right to left with slight vertical variation
-            const horizontalSpeed = Math.random() * 0.4 + 0.15; // Speed between 0.15-0.55
-            const verticalSpeed = (Math.random() - 0.5) * 0.2; // Small vertical variation
-            
+            const horizontalSpeed = Math.random() * 0.4 + 0.15;
+            const verticalSpeed = (Math.random() - 0.5) * 0.2;
+
             this.particles.push({
                 x: Math.random() * this.canvas.width,
                 y: Math.random() * this.canvas.height,
-                vx: -horizontalSpeed, // Move left (negative X)
-                vy: verticalSpeed, // Small vertical movement
-                radius: Math.random() * 0.8 + 0.5, // Smaller particle size (0.5-1.3px)
-                opacity: Math.random() * 0.4 + 0.3 // Subtle opacity (0.3-0.7)
+                vx: -horizontalSpeed,
+                vy: verticalSpeed,
+                radius: Math.random() * 0.8 + 0.5,
+                opacity: Math.random() * 0.4 + 0.3
             });
         }
     }
@@ -45,92 +40,45 @@ class AmbientBackground {
     }
 
     setupEventListeners() {
-        window.addEventListener('resize', () => {
-            this.resize();
-            // Adjust particle positions to stay within bounds
-            this.particles.forEach(particle => {
-                if (particle.x < particle.radius) particle.x = particle.radius;
-                if (particle.x > this.canvas.width - particle.radius) particle.x = this.canvas.width - particle.radius;
-                if (particle.y < particle.radius) particle.y = particle.radius;
-                if (particle.y > this.canvas.height - particle.radius) particle.y = this.canvas.height - particle.radius;
-            });
-        });
+        window.addEventListener('resize', () => this.resize());
     }
 
     updateParticles() {
-        this.particles.forEach(particle => {
-            // Update position based on velocity
-            particle.x += particle.vx;
-            particle.y += particle.vy;
+        this.particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
 
-            // Wrap from left to right (continuous right-to-left movement)
-            if (particle.x < -particle.radius) {
-                particle.x = this.canvas.width + particle.radius;
-            } else if (particle.x > this.canvas.width + particle.radius) {
-                particle.x = -particle.radius;
-            }
-
-            // Bounce off top and bottom bounds
-            if (particle.y < particle.radius) {
-                particle.y = particle.radius;
-                particle.vy = -particle.vy; // Reverse Y velocity
-            } else if (particle.y > this.canvas.height - particle.radius) {
-                particle.y = this.canvas.height - particle.radius;
-                particle.vy = -particle.vy; // Reverse Y velocity
+            if (p.x < -p.radius) p.x = this.canvas.width + p.radius;
+            if (p.y < p.radius || p.y > this.canvas.height - p.radius) {
+                p.vy *= -1;
             }
         });
     }
 
-    /**
-     * Draw particles as simple glowing points
-     */
     drawParticles() {
-        this.particles.forEach(particle => {
-            // Create radial gradient for glow effect
-            const gradient = this.ctx.createRadialGradient(
-                particle.x, particle.y, 0,
-                particle.x, particle.y, particle.radius * 3
-            );
-            gradient.addColorStop(0, `rgba(139, 92, 246, ${particle.opacity})`);
-            gradient.addColorStop(0.5, `rgba(139, 92, 246, ${particle.opacity * 0.4})`);
-            gradient.addColorStop(1, 'rgba(139, 92, 246, 0)');
-
-            // Draw outer glow
-            this.ctx.fillStyle = gradient;
+        this.particles.forEach(p => {
+            const g = this.ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius * 3);
+            g.addColorStop(0, `rgba(139,92,246,${p.opacity})`);
+            g.addColorStop(1, 'rgba(139,92,246,0)');
+            this.ctx.fillStyle = g;
             this.ctx.beginPath();
-            this.ctx.arc(particle.x, particle.y, particle.radius * 3, 0, Math.PI * 2);
-            this.ctx.fill();
-
-            // Draw core particle
-            this.ctx.fillStyle = `rgba(139, 92, 246, ${particle.opacity * 1.2})`;
-            this.ctx.beginPath();
-            this.ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+            this.ctx.arc(p.x, p.y, p.radius * 3, 0, Math.PI * 2);
             this.ctx.fill();
         });
     }
 
     drawConnections() {
-        // Draw connecting lines between nearby particles
         for (let i = 0; i < this.particles.length; i++) {
             for (let j = i + 1; j < this.particles.length; j++) {
-                const particleA = this.particles[i];
-                const particleB = this.particles[j];
+                const a = this.particles[i];
+                const b = this.particles[j];
+                const d = Math.hypot(a.x - b.x, a.y - b.y);
 
-                const dx = particleB.x - particleA.x;
-                const dy = particleB.y - particleA.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                if (distance < this.connectionDistance) {
-                    // Calculate opacity based on distance (closer = brighter, farther = dimmer)
-                    // Opacity decreases as distance increases
-                    const maxOpacity = 0.3; // Maximum opacity for closest particles
-                    const opacity = maxOpacity * (1 - distance / this.connectionDistance);
-                    
-                    this.ctx.strokeStyle = `rgba(139, 92, 246, ${opacity})`;
-                    this.ctx.lineWidth = 1.5; // Thicker lines
+                if (d < this.connectionDistance) {
+                    this.ctx.strokeStyle = `rgba(139,92,246,${0.3 * (1 - d / this.connectionDistance)})`;
                     this.ctx.beginPath();
-                    this.ctx.moveTo(particleA.x, particleA.y);
-                    this.ctx.lineTo(particleB.x, particleB.y);
+                    this.ctx.moveTo(a.x, a.y);
+                    this.ctx.lineTo(b.x, b.y);
                     this.ctx.stroke();
                 }
             }
@@ -138,213 +86,126 @@ class AmbientBackground {
     }
 
     animate() {
-        // Clear canvas with pure black
-        this.ctx.fillStyle = '#000000';
+        this.ctx.fillStyle = "#000";
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        // Update particle positions
         this.updateParticles();
-
-        // Draw connections first (behind particles)
         this.drawConnections();
-
-        // Draw particles on top
         this.drawParticles();
-
-        // Continue animation using requestAnimationFrame
         requestAnimationFrame(() => this.animate());
     }
 }
 
 /**
- * PT Mod - API Integration
- * Fetches bot statistics from backend and updates UI
+ * Bot Data Manager (LIVE every 1 second)
  */
 
 class BotDataManager {
     constructor() {
-        this.apiEndpoint = 'https://pt.gowshik.online/api/bot-stats';
-        this.updateInterval = 5000; // Update every 5 seconds
+        this.apiEndpoint = "https://pt.gowshik.online/api/bot-stats";
+        this.updateInterval = 1000; 
         this.updateTimer = null;
+        this.isFetching = false;
     }
 
-    /**
-     * Format number with commas
-     */
-    formatNumber(num) {
-        if (num === null || num === undefined || isNaN(num)) return '-';
-        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    formatNumber(n) {
+        return isNaN(n) ? "-" : n.toLocaleString();
     }
 
-    /**
-     * Format uptime from seconds to readable string
-     */
-    formatUptime(seconds) {
-        if (!seconds || isNaN(seconds)) return '-';
-        
-        const days = Math.floor(seconds / 86400);
-        const hours = Math.floor((seconds % 86400) / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        const secs = seconds % 60;
-
-        if (days > 0) {
-            return `${days}d ${hours}h ${minutes}m`;
-        } else if (hours > 0) {
-            return `${hours}h ${minutes}m ${secs}s`;
-        } else if (minutes > 0) {
-            return `${minutes}m ${secs}s`;
-        } else {
-            return `${secs}s`;
-        }
+    formatLatency(ms) {
+        return isNaN(ms) ? "-" : `${ms} ms`;
     }
 
-    /**
-     * Format latency with unit
-     */
-    formatLatency(latency) {
-        if (latency === null || latency === undefined || isNaN(latency)) return '-';
-        return `${latency}ms`;
+    formatUptime(sec) {
+        if (!sec) return "-";
+        const m = Math.floor(sec / 60);
+        const s = sec % 60;
+        return `${m}m ${s}s`;
     }
 
-    /**
-     * Update status indicator
-     */
     updateStatus(status) {
-        const statusDot = document.getElementById('statusDot');
-        const statusText = document.getElementById('statusText');
+        const dot = document.getElementById("statusDot");
+        const text = document.getElementById("statusText");
+        if (!dot || !text) return;
 
-        if (!statusDot || !statusText) return;
-
-        const isOnline = status === 'online';
-        
-        // Update classes
-        statusDot.className = 'status-dot';
-        if (isOnline) {
-            statusDot.classList.add('online');
-            statusText.textContent = 'Online';
-        } else {
-            statusDot.classList.add('offline');
-            statusText.textContent = 'Offline';
-        }
+        dot.className = "status-dot " + (status === "online" ? "online" : "offline");
+        text.textContent = status === "online" ? "Online" : "Offline";
     }
 
-    /**
-     * Update all UI elements with bot data
-     */
-    updateUI(data) {
-        // Update status
-        this.updateStatus(data.status);
+    updateUI(d) {
+        this.updateStatus(d.status);
 
-        // Update profile stats
-        const serverCountEl = document.getElementById('serverCount');
-        const userCountEl = document.getElementById('userCount');
-        const latencyEl = document.getElementById('latency');
+        document.getElementById("serverCount").textContent = this.formatNumber(d.servers);
+        document.getElementById("userCount").textContent = this.formatNumber(d.users);
+        document.getElementById("latency").textContent = this.formatLatency(d.latency);
 
-        if (serverCountEl) {
-            serverCountEl.textContent = this.formatNumber(data.servers);
-        }
-        if (userCountEl) {
-            userCountEl.textContent = this.formatNumber(data.users);
-        }
-        if (latencyEl) {
-            latencyEl.textContent = this.formatLatency(data.latency);
-        }
-
-        // Update dashboard stats
-        const statServersEl = document.getElementById('statServers');
-        const statLatencyEl = document.getElementById('statLatency');
-        const statUptimeEl = document.getElementById('statUptime');
-
-        if (statServersEl) {
-            statServersEl.textContent = this.formatNumber(data.servers);
-        }
-        if (statLatencyEl) {
-            statLatencyEl.textContent = this.formatLatency(data.latency);
-        }
-        if (statUptimeEl) {
-            statUptimeEl.textContent = this.formatUptime(data.uptime);
-        }
+        document.getElementById("statServers").textContent = this.formatNumber(d.servers);
+        document.getElementById("statLatency").textContent = this.formatLatency(d.latency);
+        document.getElementById("statUptime").textContent = this.formatUptime(d.uptime);
     }
 
-    /**
-     * Fetch bot stats from API
-     */
     async fetchBotStats() {
+        if (this.isFetching) return;
+        this.isFetching = true;
+
         try {
-            const response = await fetch(this.apiEndpoint);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
+            const res = await fetch(this.apiEndpoint, { cache: "no-store" });
+            if (!res.ok) throw new Error("API error");
+            const data = await res.json();
             this.updateUI(data);
-        } catch (error) {
-            console.error('Error fetching bot stats:', error);
-            // Update status to show error/offline
-            this.updateStatus('offline');
+        } catch {
+            this.updateStatus("offline");
+        } finally {
+            this.isFetching = false;
         }
     }
 
-    /**
-     * Start periodic updates
-     */
     start() {
-        // Fetch immediately
-        this.fetchBotStats();
-        
-        // Then fetch periodically
-        this.updateTimer = setInterval(() => {
-            this.fetchBotStats();
-        }, this.updateInterval);
+        this.fetchBotStats(); // instant
+        this.updateTimer = setInterval(() => this.fetchBotStats(), this.updateInterval);
     }
 
-    /**
-     * Stop periodic updates
-     */
     stop() {
-        if (this.updateTimer) {
-            clearInterval(this.updateTimer);
-            this.updateTimer = null;
-        }
+        clearInterval(this.updateTimer);
+        this.updateTimer = null;
     }
 }
 
 /**
- * Icon Animation Manager
- * Adds dynamic animations to stat icons
+ * Icon Animator
  */
+
 class IconAnimator {
     constructor() {
-        this.icons = ['iconServers', 'iconLatency', 'iconUptime', 'iconFeatures'];
-        this.init();
-    }
-
-    init() {
-        this.icons.forEach((iconId, index) => {
-            const icon = document.getElementById(iconId);
-            if (icon) {
-                // Add pulsing animation with staggered delays
-                icon.style.animation = `iconPulse 3s ease-in-out infinite`;
-                icon.style.animationDelay = `${index * 0.5}s`;
+        ["iconServers", "iconLatency", "iconUptime", "iconFeatures"].forEach((id, i) => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.style.animation = "iconPulse 3s infinite";
+                el.style.animationDelay = `${i * 0.4}s`;
             }
         });
     }
 }
 
-// Initialize animation and data manager when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize background animation
-    const canvas = document.getElementById('backgroundCanvas');
-    if (canvas) {
-        new AmbientBackground(canvas);
-    }
+/**
+ * Init
+ */
 
-    // Initialize bot data manager
-    const botDataManager = new BotDataManager();
+let botDataManager;
+
+document.addEventListener("DOMContentLoaded", () => {
+    const canvas = document.getElementById("backgroundCanvas");
+    if (canvas) new AmbientBackground(canvas);
+
+    botDataManager = new BotDataManager();
     botDataManager.start();
 
-    // Initialize icon animations
     new IconAnimator();
 });
 
+/**
+ * Pause updates when tab inactive
+ */
+document.addEventListener("visibilitychange", () => {
+    if (!botDataManager) return;
+    document.hidden ? botDataManager.stop() : botDataManager.start();
+});
