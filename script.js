@@ -99,9 +99,13 @@ class AmbientBackground {
  * Bot Data Manager (LIVE every 1 second)
  */
 
+// API Configuration
+const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const API_BASE = IS_LOCAL ? 'http://localhost:10000' : 'https://pt.gowshik.online';
+
 class BotDataManager {
     constructor() {
-        this.apiEndpoint = "https://pt.gowshik.online/api/bot-stats";
+        this.apiEndpoint = `${API_BASE}/api/bot-stats`;
         this.updateInterval = 1000; 
         this.updateTimer = null;
         this.isFetching = false;
