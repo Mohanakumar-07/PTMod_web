@@ -427,8 +427,8 @@ async function handleSaveSettings() {
     saveBtn.textContent = 'Saving...';
     
     const success = await saveGuildSettings(selectedGuild.id, {
-        welcome_channel: welcomeChannel ? parseInt(welcomeChannel) : null,
-        leave_channel: leaveChannel ? parseInt(leaveChannel) : null,
+        welcome_channel: welcomeChannel || null,
+        leave_channel: leaveChannel || null,
         welcome_message: welcomeMessage || null,
         leave_message: leaveMessage || null
     });
