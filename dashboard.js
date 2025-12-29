@@ -10,11 +10,11 @@ const CONFIG = {
     CLIENT_ID: '1328624294628032523', // Your Discord Bot Client ID
     // Redirect URI dynamically set based on environment
     REDIRECT_URI: IS_LOCAL 
-        ? 'http://localhost:10000/dashboard.html'
+        ? 'http://127.0.0.1:10000/dashboard.html'
         : 'https://ptmod.mkhub.in/dashboard.html',
     // API Base - uses pt.gowshik.online for production, localhost for development
     API_BASE: IS_LOCAL 
-        ? 'http://localhost:10000' 
+        ? 'http://127.0.0.1:10000' 
         : 'https://pt.gowshik.online',
     SCOPES: 'identify guilds'
 };

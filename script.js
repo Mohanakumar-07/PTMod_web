@@ -101,7 +101,7 @@ class AmbientBackground {
 
 // API Configuration
 const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-const API_BASE = IS_LOCAL ? 'http://localhost:10000' : 'https://pt.gowshik.online';
+const API_BASE = IS_LOCAL ? 'http://127.0.0.1:10000' : 'https://pt.gowshik.online';
 
 class BotDataManager {
     constructor() {
